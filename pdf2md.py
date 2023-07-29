@@ -664,6 +664,33 @@ def pdf2md(pdf_file_path, output_path='', \
             txt_file.write(all_text_txt.strip())
 
 
+# 批量转换一个文件夹下的 PDF
+def pdf2md_batch(pdf_dir_path='', output_path='', \
+            page_as_head=False, insert_images=True, \
+            force_join_broken_line=True, line_char_count_tolerance=-1, \
+            show_process=True, also_txt=False) -> int:
+    if pdf_dir_path == '':
+        pdf_dir_path = os.path.dirname(os.path.realpath(__file__))
+    if not os.path.exists(pdf_dir_path):
+        print(f'路径 {pdf_dir_path} 不存在。')
+        return
+    if output_path == '':
+        output_path = os.path.join(pdf_dir_path, 'Convert')
+
+    success_count = 0
+    for root, dirs, files in os.walk(pdf_dir_path):
+        for file in files:
+            if file.endswith(".pdf"):
+                file_path = os.path.join(root, file)
+                try:
+                    pdf2md(file_path, output_path, page_as_head, insert_images, force_join_broken_line, line_char_count_tolerance, show_process, also_txt)
+                    success_count += 1
+                except Exception as e:
+                    print(f"Error processing PDF file: {file_path}")
+                    print(f"Error message: {str(e)}")
+    return success_count
+        
+
 # 测试代码
 if __name__ == '__main__':
     script_path = os.path.dirname(os.path.realpath(__file__))
