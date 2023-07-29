@@ -1,3 +1,5 @@
+python.exe -m pip install --upgrade pip
+
 pip install PyPDF2
 pip install pytesseract
 pip install pdfplumber
