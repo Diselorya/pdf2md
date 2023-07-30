@@ -7,7 +7,7 @@ pip install unicodedata
 pip install pangu
 pip install opencv-python
 
-@echo Python åº“å®‰è£…å®Œæ¯•ï¼Œæ¥ä¸‹æ¥è¯·æ‰‹åŠ¨å®‰è£… Tesseract-OCR...
-@echo ä¸‹è½½åœ°å€ï¼š https://digi.bib.uni-mannheim.de/tesseract/
-@echo å®‰è£…è¯´æ˜ï¼š https://docs.forchange.cn/docs/erAdPgNXV9ho2XAG
+@echo Python ¿â°²×°Íê±Ï£¬½ÓÏÂÀ´ÇëÊÖ¶¯°²×° Tesseract-OCR...
+@echo ÏÂÔØµØÖ·£º https://digi.bib.uni-mannheim.de/tesseract/
+@echo °²×°ËµÃ÷£º https://docs.forchange.cn/docs/erAdPgNXV9ho2XAG
 @pause

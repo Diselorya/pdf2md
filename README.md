@@ -8,7 +8,8 @@ Convert PDF to Markdown and TXT, especially for obsidian.
         - [ ] Higher OCR recognition accuracy.
     - [x] Save pictures and insert to markdown by obsidian way.
 - [x] Fix broken sentences. (most but not 100%)
-    - [ ] Need to optimize based on more samples
+    - [ ] Need to optimize based on more samples.
+    - [ ] AI assisted recognition of sentence breaks.
 - [x] Add headings:
     - [x] Convert pdf bookmarks to headings.
     - [x] Use page number as headings for picture pdf.
