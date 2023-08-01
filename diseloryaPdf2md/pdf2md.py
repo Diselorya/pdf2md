@@ -1,15 +1,11 @@
 import PyPDF2
 import os
 import re
-import chineseLanguageHelper as clh
-import pathHelper
-import terminalHelper as th
-import pdfHelper
-import stringHelper as sh
+import diseloryaHelper as dhelper
 
 
 def get_fixed_pdf_filename(pdf_file_name: str):
-    return pathHelper.filename_char_check(pdf_file_name.replace('.pdf', '').replace('(Z-Library)', '').strip(), True)
+    return dhelper.path.filename_char_check(pdf_file_name.replace('.pdf', '').replace('(Z-Library)', '').strip(), True)
 
 
 # 段落分析，加 Obsidian 引用标记
@@ -37,7 +33,7 @@ def add_mark_for_each_paragraph(text: str, page_num: int, is_paragraph_completed
 
 
 # 识别书签，并修改为 Markdown 标题
-def format_markdown_header(text: str, page_number:int, bookmarks: list[pdfHelper.Bookmark], is_paragraph_completed: bool = True, find_bookmarks: list[bool] = None) -> str:
+def format_markdown_header(text: str, page_number:int, bookmarks: list[dhelper.pdf.Bookmark], is_paragraph_completed: bool = True, find_bookmarks: list[bool] = None) -> str:
     if text.strip() == '':
         return text
 
@@ -52,7 +48,7 @@ def format_markdown_header(text: str, page_number:int, bookmarks: list[pdfHelper
         if line.strip() == '':
             continue
 
-        page_bookmarks = pdfHelper.get_bookmark_of_this_page(bookmarks, page_number, 1)
+        page_bookmarks = dhelper.pdf.get_bookmark_of_this_page(bookmarks, page_number, 1)
         if len(page_bookmarks) < 1:
             return text
             
@@ -60,7 +56,7 @@ def format_markdown_header(text: str, page_number:int, bookmarks: list[pdfHelper
             # 纯数字说明是用页码做标题，不查找了
             if re.match(r'^\s*[0-9]+\s*$', bookmark.title):
                 continue
-            if not find_bookmarks[bookmark.order] and pdfHelper.recognized_as_title(line, bookmark.title, 0.7):
+            if not find_bookmarks[bookmark.order] and dhelper.pdf.recognized_as_title(line, bookmark.title, 0.7):
                 line = '#' * bookmark.level + ' ' + bookmark.title + '\n'
                 find_bookmarks[bookmark.order] = True
                 already_find = True
@@ -86,8 +82,8 @@ def pdf2md(pdf_file_path, output_path='', \
             force_join_broken_line=True, line_char_count_tolerance=-1, \
             show_process=True, also_txt=False):
     
-    th.set_workdir_to_here()
-    th.clear_terminal()
+    dhelper.terminal.set_workdir_to_here()
+    dhelper.terminal.clear_terminal()
 
     # 打开PDF文件
     print('工作路径：' + os.getcwd())
@@ -103,8 +99,8 @@ def pdf2md(pdf_file_path, output_path='', \
     print(file_name)
     # return    
 
-    # undone: 这些变量可以用一个类存储，放在 pdfHelper 里
-    pdf_info = pdfHelper.PdfInfo(pdf_reader)  # 获取PDF的基本信息
+    # undone: 这些变量可以用一个类存储，放在 dhelper.pdf 里
+    pdf_info = dhelper.pdf.PdfInfo(pdf_reader)  # 获取PDF的基本信息
 
     # 更新 PDF 中的字符数量，连图片中的字符也算
     if pdf_info.is_pure_picture:
@@ -112,12 +108,12 @@ def pdf2md(pdf_file_path, output_path='', \
 
     line_max_char_count = 99999
     if force_join_broken_line:
-        line_max_char_count = pdfHelper.get_max_line_char_count(pdf_info.occurrence_of_line_char_count)  # 获取PDF中每行的最大字符数量
+        line_max_char_count = dhelper.pdf.get_max_line_char_count(pdf_info.occurrence_of_line_char_count)  # 获取PDF中每行的最大字符数量
 
-    line_char_count_tolerance = pdfHelper.get_default_tolerance(line_char_count_tolerance, line_max_char_count)
+    line_char_count_tolerance = dhelper.pdf.get_default_tolerance(line_char_count_tolerance, line_max_char_count)
     print(line_max_char_count, line_char_count_tolerance)
 
-    bookmarks = pdfHelper.get_all_bookmarks(pdf_reader)
+    bookmarks = dhelper.pdf.get_all_bookmarks(pdf_reader)
 
 
     # 书中的所有文字保存在这个变量中
@@ -139,7 +135,7 @@ def pdf2md(pdf_file_path, output_path='', \
         page_text_txt = ''
 
         # 本页中的文字
-        text = sh.string_normalise(page.extract_text()) + '\n'
+        text = dhelper.string.string_normalise(page.extract_text()) + '\n'
         page_text_md += text
         page_text_txt += text
 
@@ -149,11 +145,11 @@ def pdf2md(pdf_file_path, output_path='', \
             pdf_info.image_count += 1
 
             # 使用OCR识别图像中的文本
-            image_path = pdfHelper.get_pdf_save_picture_path(file_name, page_num, pdf_info.image_count, 'jpg')
+            image_path = dhelper.pdf.get_pdf_save_picture_path(file_name, page_num, pdf_info.image_count, 'jpg')
             if pdf_info.is_pure_picture:
                 image_text = pdf_info.text_each_images_pages[page_num][pdf_info.image_count - 1]
             else:
-                image_text = pdfHelper.get_text_from_image_with_save(image.data, image_path)
+                image_text = dhelper.pdf.get_text_from_image_with_save(image.data, image_path)
             
 
             page_text_md += image_text
@@ -165,9 +161,9 @@ def pdf2md(pdf_file_path, output_path='', \
 
         # 合并断开的行
         if force_join_broken_line:
-            page_text_md, page_completed = pdfHelper.join_broken_line(page_text_md, line_max_char_count, line_char_count_tolerance)
+            page_text_md, page_completed = dhelper.pdf.join_broken_line(page_text_md, line_max_char_count, line_char_count_tolerance)
             is_page_last_line_completed[page_num] = page_completed
-            page_text_txt, page_completed = pdfHelper.join_broken_line(page_text_txt, line_max_char_count, line_char_count_tolerance)
+            page_text_txt, page_completed = dhelper.pdf.join_broken_line(page_text_txt, line_max_char_count, line_char_count_tolerance)
             
         # 识别书签，并修改为 Markdown 标题 
         page_text_md = format_markdown_header(page_text_md, page_num, bookmarks, page_completed, find_bookmarks)
@@ -178,7 +174,7 @@ def pdf2md(pdf_file_path, output_path='', \
         # 纯图片 PDF 把图片第一行（页眉）作为标题的一部分
         if pdf_info.is_pure_picture:            
             # 按标点符号拆分句子
-            first_sentence = re.sub(r'\^page-\d+-section-\d+', '', clh.text_split_by_punctuation(page_text_md)[0]).strip()
+            first_sentence = re.sub(r'\^page-\d+-section-\d+', '', dhelper.chinese.text_split_by_punctuation(page_text_md)[0]).strip()
             # 判断是否每页都有书签
             search = re.search(r'^(#+)\s+(.+)(\s*)$', first_sentence)
             if len(bookmarks) >= pdf_info.page_count and search != None:                    
@@ -268,10 +264,10 @@ def pdf2md_batch(pdf_dir_path='', output_path='', \
 # 测试代码
 if __name__ == '__main__':
     script_path = os.path.dirname(os.path.realpath(__file__))
-    pdf_file = 'C:\\Users\\listo\\Desktop\\我的云\\Workspace\\Exercise\\PythonPractise\\PDF 转 MD\\博弈论 ((美) 约翰·冯·诺依曼 著 刘霞 译) (Z-Library).pdf'
-    pdf2md(os.path.join(script_path, pdf_file), also_txt=True)
+    # pdf_file = ''
+    # pdf2md(os.path.join(script_path, pdf_file), also_txt=True)
 
     # dir = ''
     # pdf2md_batch(dir, also_txt=True)
 
-    print(clh.sentence_end_symbols)
+    print(dhelper.chinese.sentence_end_symbols)

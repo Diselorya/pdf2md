@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "diseloryaPdf2md"
+version = "0.0.1"
+description = "Diselorya's PDF to Markdown tool especially for Obsidian."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Diselorya"},
+]
+keywords=['python', 'pdf', 'md', 'obsidian', 'diselorya']
+dependencies = [
+    'diseloryaHelper>=0.0.0.3',
+]
+classifiers= [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Operating System :: Microsoft :: Windows"
+]
+
+[project.urls]
+Homepage = "https://github.com/Diselorya/pdf2md/"
